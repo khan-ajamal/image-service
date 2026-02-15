@@ -10,7 +10,7 @@ class TestPresignedUploadUrl:
             data=json.dumps({"filename": "cat.png", "content_type": "image/png"}),
             content_type="application/json",
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
         data = response.get_json()
         assert "key" in data
         assert "bucket" in data

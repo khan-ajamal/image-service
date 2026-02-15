@@ -29,6 +29,7 @@ class S3StorageRepository:
         region: str = "ap-south-1",
         expiry_seconds: int = _DEFAULT_EXPIRY_SECONDS,
         s3_client: S3Client | None = None,
+        endpoint_url: str | None = None,
     ) -> None:
         self._bucket = bucket
         self._region = region
@@ -38,6 +39,7 @@ class S3StorageRepository:
         self._client = s3_client or boto3.client(
             "s3",
             region_name=region,
+            endpoint_url=endpoint_url,
             config=BotoConfig(signature_version="s3v4"),
         )
 

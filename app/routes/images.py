@@ -28,7 +28,7 @@ def request_upload_url():
     body = ImageUploadRequest.model_validate(request.get_json(force=True))
     image_service = _get_image_service()
     presigned = image_service.generate_upload_url(body)
-    return jsonify(presigned), 201
+    return jsonify(presigned), 200
 
 
 @images_bp.post("/")

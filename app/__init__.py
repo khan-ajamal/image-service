@@ -43,10 +43,12 @@ def create_app(
             repository=DynamoDBImageRepository(
                 table_name=settings.dynamodb_table,
                 region=settings.aws_region,
+                endpoint_url=settings.aws_endpoint_url,
             ),
             storage=S3StorageRepository(
                 bucket=settings.s3_bucket,
                 region=settings.aws_region,
+                endpoint_url=settings.aws_endpoint_url,
             ),
             bucket=settings.s3_bucket,
         )

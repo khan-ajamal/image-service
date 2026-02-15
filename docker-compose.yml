@@ -1,0 +1,22 @@
+services:
+    localstack:
+        image: localstack/localstack:latest
+        ports:
+            - "4566:4566"
+        environment:
+            - SERVICES=s3,dynamodb
+            - DEFAULT_REGION=us-east-1
+            - DEBUG=0
+        volumes:
+            - ./localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh:ro
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "curl",
+                    "-f",
+                    "http://localhost:4566/_localstack/health",
+                ]
+            interval: 5s
+            timeout: 3s
+            retries: 10

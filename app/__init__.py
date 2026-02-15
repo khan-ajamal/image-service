@@ -25,6 +25,7 @@ def create_app(
         Configured Flask application.
     """
     app = Flask(__name__)
+    app.url_map.strict_slashes = False  # Allow routes with or without trailing slashes
 
     # Load configuration
     if settings is None:

@@ -2,7 +2,7 @@
 
 from flask import Blueprint, current_app, jsonify, request
 
-from app.schemas.image import ImageUploadRequest
+from app.schemas.image import ImageCreateRequest, ImageUploadRequest
 from app.services.protocols import ImageServiceProtocol
 
 images_bp = Blueprint("images", __name__, url_prefix="/images")
@@ -14,7 +14,7 @@ def _get_image_service() -> ImageServiceProtocol:
 
 
 @images_bp.post("/upload")
-def upload_image():
+def request_upload_url():
     """Return a presigned S3 PUT URL for the client to upload an image.
 
     Request body::
@@ -23,7 +23,7 @@ def upload_image():
 
     Response (201)::
 
-        {"key": "/2026/02/13/14/30/1234-photo.png", "bucket": "my-bucket", "url": "https://..."}
+        {"key": "/2026/02/13/14/30/photo.png", "bucket": "my-bucket", "url": "https://..."}
     """
     body = ImageUploadRequest.model_validate(request.get_json(force=True))
     image_service = _get_image_service()
@@ -33,22 +33,53 @@ def upload_image():
 
 @images_bp.post("/")
 def create_image():
-    return jsonify({"message": "Image created"}), 201
+    """Create an image record after the file has been uploaded to S3.
+
+    Request body::
+
+        {
+            "name": "My photo",
+            "category": "vacation",
+            "content_type": "image/png",
+            "image": {"key": "/2026/02/13/14/30/photo.png", "bucket": "my-bucket"}
+        }
+
+    Response (201)::
+
+        {"image_id": "...", "name": "My photo", ...}
+    """
+    body = ImageCreateRequest.model_validate(request.get_json(force=True))
+    result = _get_image_service().create(body)
+    return jsonify(result), 201
 
 
 @images_bp.get("/<image_id>")
 def get_image(image_id: str):
-    """GEt image metadata by ID."""
-    return jsonify({"image_id": image_id}), 200
+    """Retrieve image metadata by ID."""
+    result = _get_image_service().get(image_id)
+    if result is None:
+        return jsonify({"error": "Image not found"}), 404
+    return jsonify(result), 200
 
 
 @images_bp.get("/")
 def list_images():
     """List images with optional pagination and filters."""
-    return jsonify([]), 200
+    limit = request.args.get("limit", 20, type=int)
+    cursor = request.args.get("cursor", None)
+    category = request.args.get("category", None)
+    user_id = request.args.get("user_id", None)
+    result = _get_image_service().list_images(
+        limit=limit,
+        cursor=cursor,
+        category=category,
+        user_id=user_id,
+    )
+    return jsonify(result), 200
 
 
 @images_bp.delete("/<image_id>")
 def delete_image(image_id: str):
     """Delete an image by ID."""
-    return jsonify({"message": "Image deleted"}), 204
+    _get_image_service().delete(image_id)
+    return "", 204

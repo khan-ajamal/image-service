@@ -1,0 +1,83 @@
+meta {
+  name: Get Presigned URL
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/images/upload
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "filename": "lucknow.jpg",
+    "content_type": "image/jpeg"
+  }
+}
+
+vars:pre-request {
+  base_url: http://localhost:8000
+}
+
+vars:post-response {
+  presigned_url: res.body.url
+  key: res.body.key
+  bucket: res.body.bucket
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+example {
+  name: example
+  
+  request: {
+    url: {{base_url}}/images/upload
+    method: POST
+    mode: json
+    headers: {
+      Content-Type: application/json
+    }
+  
+    body:json: {
+      {
+        "filename": "lucknow.jpg",
+        "content_type": "image/jpeg"
+      }
+    }
+  }
+  
+  response: {
+    headers: {
+      server: Werkzeug/3.1.5 Python/3.13.12
+      date: Sun, 15 Feb 2026 16:49:40 GMT
+      content-type: application/json
+      content-length: 482
+      connection: close
+    }
+  
+    status: {
+      code: 200
+      text: OK
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "bucket": "image-service-local",
+          "key": "2026/02/15/16/49/01khh3adwzwfrskrn26x0zaq80-lucknow.jpg",
+          "url": "http://localhost:4566/image-service-local/2026/02/15/16/49/01khh3adwzwfrskrn26x0zaq80-lucknow.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=test%2F20260215%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260215T164940Z&X-Amz-Expires=900&X-Amz-SignedHeaders=content-type%3Bhost&X-Amz-Signature=f52f65b4f760d860f813c3d01262a6be3a2f8d144d8b1eea3055f74d9ec37412"
+        }
+      '''
+    }
+  }
+}

@@ -35,12 +35,19 @@ class S3StorageRepository:
         self._region = region
         self._expiry_seconds = expiry_seconds
 
-        # Allow injecting a pre-built client (useful for testing / LocalStack)
+        # Allow injecting a pre-built client (useful for testing / LocalStack).
+        # When a custom endpoint is provided (e.g. LocalStack), force
+        # path-style addressing so presigned URLs use
+        # ``http://host/bucket/key`` instead of ``http://bucket.host/key``.
+        boto_config: dict = {"signature_version": "s3v4"}
+        if endpoint_url:
+            boto_config["s3"] = {"addressing_style": "path"}
+
         self._client = s3_client or boto3.client(
             "s3",
             region_name=region,
             endpoint_url=endpoint_url,
-            config=BotoConfig(signature_version="s3v4"),
+            config=BotoConfig(**boto_config),
         )
 
     def generate_presigned_upload_url(

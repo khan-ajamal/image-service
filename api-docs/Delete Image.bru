@@ -1,0 +1,20 @@
+meta {
+  name: Delete Image
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{base_url}}/images/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 01KHH4PGYJ2BC6JWAJNK8ZVAWY
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

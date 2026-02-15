@@ -35,7 +35,7 @@ class ImageService:
     def _generate_s3_key(filename: str, now: datetime | None = None) -> str:
         """Build an S3 key with a date-based prefix, ULID, and slugified filename.
 
-        Format: ``/yyyy/mm/dd/HH/MM/<ulid>-<slugified-filename>``
+        Format: ``yyyy/mm/dd/HH/MM/<ulid>-<slugified-filename>``
 
         The ULID component guarantees uniqueness even when two users
         upload a file with the same name at the same moment.
@@ -43,7 +43,7 @@ class ImageService:
         now = now or datetime.now(UTC)
         slug = slugify_filename(filename)
         unique = str(ULID()).lower()
-        prefix = now.strftime("/%Y/%m/%d/%H/%M")
+        prefix = now.strftime("%Y/%m/%d/%H/%M")
         return f"{prefix}/{unique}-{slug}"
 
     def generate_upload_url(self, data: ImageUploadRequest) -> dict:
@@ -91,7 +91,7 @@ class ImageService:
             image_id=image_id,
             user_id=data.user_id,
             name=data.name,
-            filename=data.image.key.rsplit("/", 1)[-1],
+            filename=data.image.key.rsplit("/", 1)[-1].split("-", 1)[-1],
             content_type=data.content_type,
             category=data.category,
             s3_bucket=data.image.bucket,

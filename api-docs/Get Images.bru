@@ -1,0 +1,223 @@
+meta {
+  name: Get Images
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/images?user_id=1&category=city
+  body: none
+  auth: inherit
+}
+
+params:query {
+  user_id: 1
+  category: city
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+example {
+  name: All Images
+  
+  request: {
+    url: {{base_url}}/images
+    method: GET
+    mode: none
+  }
+  
+  response: {
+    headers: {
+      server: Werkzeug/3.1.5 Python/3.13.12
+      date: Sun, 15 Feb 2026 17:18:32 GMT
+      content-type: application/json
+      content-length: 722
+      connection: close
+    }
+  
+    status: {
+      code: 200
+      text: OK
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "items": [
+            {
+              "category": "places",
+              "content_type": "image/jpeg",
+              "created_at": "2026-02-15T17:13:45.682335+00:00",
+              "image_id": "01KHH4PGYJ2BC6JWAJNK8ZVAWY",
+              "name": "Lucknow",
+              "user_id": "1"
+            },
+            {
+              "category": "places",
+              "content_type": "image/jpeg",
+              "created_at": "2026-02-15T17:16:29.548959+00:00",
+              "image_id": "01KHH4VGZC2QGP2S9B8YK0TYPQ",
+              "name": "Lucknow",
+              "user_id": "1"
+            },
+            {
+              "category": "city",
+              "content_type": "image/jpeg",
+              "created_at": "2026-02-15T17:18:19.073128+00:00",
+              "image_id": "01KHH4YVY1J5SPP5YF0PT223VR",
+              "name": "Lucknow",
+              "user_id": "1"
+            }
+          ],
+          "next_cursor": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Filter By Category
+  
+  request: {
+    url: {{base_url}}/images?category=city
+    method: GET
+    mode: none
+    params:query: {
+      category: city
+    }
+  }
+  
+  response: {
+    headers: {
+      server: Werkzeug/3.1.5 Python/3.13.12
+      date: Sun, 15 Feb 2026 17:19:10 GMT
+      content-type: application/json
+      content-length: 268
+      connection: close
+    }
+  
+    status: {
+      code: 200
+      text: OK
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "items": [
+            {
+              "category": "city",
+              "content_type": "image/jpeg",
+              "created_at": "2026-02-15T17:18:19.073128+00:00",
+              "image_id": "01KHH4YVY1J5SPP5YF0PT223VR",
+              "name": "Lucknow",
+              "user_id": "1"
+            }
+          ],
+          "next_cursor": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Filter By User ID
+  
+  request: {
+    url: {{base_url}}/images?user_id=2
+    method: GET
+    mode: none
+    params:query: {
+      user_id: 2
+    }
+  }
+  
+  response: {
+    headers: {
+      server: Werkzeug/3.1.5 Python/3.13.12
+      date: Sun, 15 Feb 2026 17:20:07 GMT
+      content-type: application/json
+      content-length: 268
+      connection: close
+    }
+  
+    status: {
+      code: 200
+      text: OK
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "items": [
+            {
+              "category": "city",
+              "content_type": "image/jpeg",
+              "created_at": "2026-02-15T17:19:40.990788+00:00",
+              "image_id": "01KHH51BXYBBHQ1E5QBZWZBHRY",
+              "name": "Lucknow",
+              "user_id": "2"
+            }
+          ],
+          "next_cursor": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: Filter By Category + User ID
+  
+  request: {
+    url: {{base_url}}/images?user_id=1&category=city
+    method: GET
+    mode: none
+    params:query: {
+      user_id: 1
+      category: city
+    }
+  }
+  
+  response: {
+    headers: {
+      server: Werkzeug/3.1.5 Python/3.13.12
+      date: Sun, 15 Feb 2026 17:20:37 GMT
+      content-type: application/json
+      content-length: 268
+      connection: close
+    }
+  
+    status: {
+      code: 200
+      text: OK
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "items": [
+            {
+              "category": "city",
+              "content_type": "image/jpeg",
+              "created_at": "2026-02-15T17:18:19.073128+00:00",
+              "image_id": "01KHH4YVY1J5SPP5YF0PT223VR",
+              "name": "Lucknow",
+              "user_id": "1"
+            }
+          ],
+          "next_cursor": null
+        }
+      '''
+    }
+  }
+}

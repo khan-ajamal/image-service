@@ -1,0 +1,84 @@
+meta {
+  name: Create Image Record
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/images
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Lucknow",
+    "category": "places",
+    "content_type": "image/jpeg",
+    "user_id": "1",
+    "image": {
+      "bucket": "image-service-local",
+      "key": "2026/02/15/17/15/01khh4s62skf66cgpfb7nj3q5y-lucknow.jpg"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+example {
+  name: example
+  
+  request: {
+    url: {{base_url}}/images
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "name": "Lucknow",
+        "category": "places",
+        "content_type": "image/jpeg",
+        "user_id": "1",
+        "image": {
+          "bucket": "image-service-local",
+          "key": "2026/02/15/17/15/01khh4s62skf66cgpfb7nj3q5y-lucknow.jpg"
+        }
+      }
+    }
+  }
+  
+  response: {
+    headers: {
+      server: Werkzeug/3.1.5 Python/3.13.12
+      date: Sun, 15 Feb 2026 17:16:29 GMT
+      content-type: application/json
+      content-length: 347
+      connection: close
+    }
+  
+    status: {
+      code: 201
+      text: Created
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "category": "places",
+          "content_type": "image/jpeg",
+          "created_at": "2026-02-15T17:16:29.548959+00:00",
+          "filename": "lucknow.jpg",
+          "image_id": "01KHH4VGZC2QGP2S9B8YK0TYPQ",
+          "name": "Lucknow",
+          "s3_bucket": "image-service-local",
+          "s3_key": "2026/02/15/17/15/01khh4s62skf66cgpfb7nj3q5y-lucknow.jpg",
+          "url": null,
+          "user_id": "1"
+        }
+      '''
+    }
+  }
+}

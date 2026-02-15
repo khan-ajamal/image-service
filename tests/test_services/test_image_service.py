@@ -32,7 +32,7 @@ class TestGenerateUploadUrl:
                 ImageUploadRequest(filename="cat.png", content_type="image/png")
             )
 
-        assert result["key"].startswith("/2026/02/14/14/30/")
+        assert result["key"].startswith("2026/02/14/14/30/")
         assert result["key"].endswith("-cat.png")
 
     def test_slugifies_filename(self, image_service: ImageService):

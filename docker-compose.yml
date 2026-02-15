@@ -5,7 +5,7 @@ services:
             - "4566:4566"
         environment:
             - SERVICES=s3,dynamodb
-            - DEFAULT_REGION=us-east-1
+            - DEFAULT_REGION=ap-south-1
             - DEBUG=0
         volumes:
             - ./localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh:ro

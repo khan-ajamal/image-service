@@ -1,0 +1,66 @@
+meta {
+  name: Get Image
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_url}}/images/:image_id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  image_id: 01KHH4YVY1J5SPP5YF0PT223VR
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+example {
+  name: Example
+  
+  request: {
+    url: {{base_url}}/images/:image_id
+    method: GET
+    mode: none
+    params:path: {
+      image_id: 01KHH4YVY1J5SPP5YF0PT223VR
+    }
+  }
+  
+  response: {
+    headers: {
+      server: Werkzeug/3.1.5 Python/3.13.12
+      date: Sun, 15 Feb 2026 17:21:55 GMT
+      content-type: application/json
+      content-length: 691
+      connection: close
+    }
+  
+    status: {
+      code: 200
+      text: OK
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "category": "city",
+          "content_type": "image/jpeg",
+          "created_at": "2026-02-15T17:18:19.073128+00:00",
+          "filename": "lucknow.jpg",
+          "image_id": "01KHH4YVY1J5SPP5YF0PT223VR",
+          "name": "Lucknow",
+          "s3_bucket": "image-service-local",
+          "s3_key": "2026/02/15/17/15/01khh4s62skf66cgpfb7nj3q5y-lucknow.jpg",
+          "url": "http://localhost:4566/image-service-local/2026/02/15/17/15/01khh4s62skf66cgpfb7nj3q5y-lucknow.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=test%2F20260215%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260215T172155Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=0f2b80e8c373161f548cc6fd9b50d3412e221b631036c9ab07c9fc04c49e8cdc",
+          "user_id": "1"
+        }
+      '''
+    }
+  }
+}

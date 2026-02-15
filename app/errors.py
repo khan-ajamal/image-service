@@ -50,6 +50,10 @@ def register_error_handlers(app: Flask) -> None:
         logger.warning("Validation error: %s", error)
         return jsonify({"error": "Validation error", "details": error.errors()}), 422
 
+    @app.errorhandler(400)
+    def handle_bad_request(error):
+        return jsonify({"error": getattr(error, "description", "Bad request")}), 400
+
     @app.errorhandler(404)
     def handle_not_found(_error):
         return jsonify({"error": "Not found"}), 404

@@ -1,0 +1,29 @@
+meta {
+  name: Upload Image
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://localhost:4566/image-service-local/2026/02/15/17/09/01khh4fe0ghnhhjd6r158zd5rr-lucknow.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=test%2F20260215%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260215T170953Z&X-Amz-Expires=900&X-Amz-SignedHeaders=content-type%3Bhost&X-Amz-Signature=55f209b805a22e0a7e18dcc95ac8cd80c3d4b12bae9f874b590b9770195c2c99
+  body: file
+  auth: inherit
+}
+
+params:query {
+  X-Amz-Algorithm: AWS4-HMAC-SHA256
+  X-Amz-Credential: test%2F20260215%2Fap-south-1%2Fs3%2Faws4_request
+  X-Amz-Date: 20260215T170953Z
+  X-Amz-Expires: 900
+  X-Amz-SignedHeaders: content-type%3Bhost
+  X-Amz-Signature: 55f209b805a22e0a7e18dcc95ac8cd80c3d4b12bae9f874b590b9770195c2c99
+}
+
+body:file {
+  file: @file(/Users/ajamalkhan/Downloads/lucknow.jpg) @contentType(image/jpeg)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

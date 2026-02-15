@@ -1,0 +1,353 @@
+openapi: 3.0.3
+info:
+  title: Image Service API
+  description: REST API for managing image uploads and metadata, backed by AWS S3 and DynamoDB.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /images/upload:
+    post:
+      summary: Request a presigned upload URL
+      description: |
+        Returns a presigned S3 PUT URL. The client uses this URL to upload the
+        image file directly to S3. Allowed content types: `image/jpeg`, `image/png`.
+      operationId: requestUploadUrl
+      tags: [Images]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImageUploadRequest"
+      responses:
+        "200":
+          description: Presigned upload URL generated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresignedUploadResponse"
+        "400":
+          description: Unsupported content type.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+
+  /images/:
+    post:
+      summary: Create an image record
+      description: |
+        Creates an image metadata record in DynamoDB after the file has been
+        uploaded to S3 using the presigned URL.
+      operationId: createImage
+      tags: [Images]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImageCreateRequest"
+      responses:
+        "201":
+          description: Image record created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageMetadata"
+        "400":
+          description: Bad request (unsupported content type or file not found in S3).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+
+    get:
+      summary: List images
+      description: Returns a paginated list of images with optional filters.
+      operationId: listImages
+      tags: [Images]
+      parameters:
+        - name: limit
+          in: query
+          description: Page size.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: cursor
+          in: query
+          description: Pagination cursor from a previous response.
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by category.
+          schema:
+            type: string
+        - name: user_id
+          in: query
+          description: Filter by user ID.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated list of images.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageListResponse"
+
+  /images/{image_id}:
+    get:
+      summary: Get image by ID
+      description: Retrieve metadata for a single image, including a presigned download URL.
+      operationId: getImage
+      tags: [Images]
+      parameters:
+        - $ref: "#/components/parameters/ImageId"
+      responses:
+        "200":
+          description: Image metadata retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageMetadata"
+        "404":
+          description: Image not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Delete image
+      description: Deletes the image record from DynamoDB and the corresponding object from S3.
+      operationId: deleteImage
+      tags: [Images]
+      parameters:
+        - $ref: "#/components/parameters/ImageId"
+      responses:
+        "204":
+          description: Image deleted successfully.
+
+components:
+  parameters:
+    ImageId:
+      name: image_id
+      in: path
+      required: true
+      description: Unique image identifier (ULID).
+      schema:
+        type: string
+
+  schemas:
+    ImageUploadRequest:
+      type: object
+      required: [filename, content_type]
+      properties:
+        filename:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Original filename.
+          example: photo.png
+        content_type:
+          type: string
+          pattern: ^image/
+          description: "MIME type. Allowed: `image/jpeg`, `image/png`."
+          example: image/png
+
+    PresignedUploadResponse:
+      type: object
+      properties:
+        key:
+          type: string
+          description: S3 object key assigned to the upload.
+          example: 2026/02/15/14/30/01jkxyz-photo.png
+        bucket:
+          type: string
+          description: S3 bucket name.
+          example: image-service-local
+        url:
+          type: string
+          format: uri
+          description: Presigned PUT URL (expires in 15 minutes).
+          example: https://s3.amazonaws.com/image-service-local/2026/02/15/14/30/01jkxyz-photo.png?X-Amz-...
+
+    S3ObjectRef:
+      type: object
+      required: [key, bucket]
+      properties:
+        key:
+          type: string
+          minLength: 1
+          description: S3 object key returned by the upload endpoint.
+          example: 2026/02/15/14/30/01jkxyz-photo.png
+        bucket:
+          type: string
+          minLength: 1
+          description: S3 bucket name returned by the upload endpoint.
+          example: image-service-local
+
+    ImageCreateRequest:
+      type: object
+      required: [name, category, content_type, user_id, image]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Display name for the image.
+          example: My vacation photo
+        category:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Image category.
+          example: vacation
+        content_type:
+          type: string
+          pattern: ^image/
+          description: "MIME type. Allowed: `image/jpeg`, `image/png`."
+          example: image/png
+        user_id:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: ID of the user creating the image.
+          example: user-123
+        image:
+          $ref: "#/components/schemas/S3ObjectRef"
+
+    ImageMetadata:
+      type: object
+      properties:
+        image_id:
+          type: string
+          description: Unique image identifier (ULID).
+          example: 01JKXYZ1234567890ABCDEF
+        user_id:
+          type: string
+          description: Owner of the image.
+          example: user-123
+        name:
+          type: string
+          description: Display name.
+          example: My vacation photo
+        filename:
+          type: string
+          description: Slugified filename derived from the S3 key.
+          example: photo.png
+        content_type:
+          type: string
+          description: MIME type.
+          example: image/png
+        category:
+          type: string
+          description: Image category.
+          example: vacation
+        s3_bucket:
+          type: string
+          description: S3 bucket where the file is stored.
+          example: image-service-local
+        s3_key:
+          type: string
+          description: S3 object key.
+          example: 2026/02/15/14/30/01jkxyz-photo.png
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: Presigned download URL (present on GET responses).
+          example: https://s3.amazonaws.com/...
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: ISO 8601 creation timestamp.
+          example: "2026-02-15T14:30:00+00:00"
+
+    ImageListItem:
+      type: object
+      properties:
+        image_id:
+          type: string
+          example: 01JKXYZ1234567890ABCDEF
+        user_id:
+          type: string
+          example: user-123
+        name:
+          type: string
+          example: My vacation photo
+        category:
+          type: string
+          example: vacation
+        content_type:
+          type: string
+          example: image/png
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-02-15T14:30:00+00:00"
+
+    ImageListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImageListItem"
+        next_cursor:
+          type: string
+          nullable: true
+          description: Cursor to pass as `cursor` query param for the next page. Null if no more pages.
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
+          example: Image not found
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Validation error
+        details:
+          type: array
+          description: List of field-level validation errors.
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+                description: Path to the invalid field.
+              msg:
+                type: string
+                description: Error message.
+              type:
+                type: string
+                description: Error type identifier.

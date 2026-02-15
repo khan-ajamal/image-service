@@ -38,7 +38,7 @@ A Flask-based REST API for managing image uploads and metadata, backed by AWS S3
 ### 1. Clone the repository
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/khan-ajamal/image-service.git
 cd image-service
 ```
 
@@ -91,3 +91,12 @@ All endpoints are prefixed with `/images`.
 ## Bruno (API Client)
 
 Install [Bruno](https://www.usebruno.com/) and load the `api-docs/` folder to browse and test all API requests and responses interactively.
+
+> **Note:** Uploading a file to the presigned URL does not work reliably inside Bruno. Use the following `curl` command instead:
+>
+> ```bash
+> curl --request PUT \
+>   --url <presigned_url> \
+>   --header 'content-type: application/octet-stream' \
+>   --upload-file <path-to-file>
+> ```

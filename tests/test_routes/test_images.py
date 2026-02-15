@@ -11,7 +11,7 @@ class TestCreateImage:
 
 class TestGetImage:
     def test_get_returns_metadata(self, client):
-        response = client.get(f"/images/123")
+        response = client.get("/images/123")
         assert response.status_code == 200
         data = response.get_json()
         assert data["image_id"] == "123"
@@ -25,5 +25,5 @@ class TestListImages:
 
 class TestDeleteImage:
     def test_delete_returns_204(self, client):
-        response = client.delete(f"/images/123")
+        response = client.delete("/images/123")
         assert response.status_code == 204

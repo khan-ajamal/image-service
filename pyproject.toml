@@ -16,6 +16,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "boto3-stubs[essential]>=1.42.49,<1.43.0",
     "ipython>=9.10.0,<9.11.0",
     "moto[dynamodb,s3]>=5.1.21,<5.2.0",
     "pytest>=9.0.2,<9.1.0",
